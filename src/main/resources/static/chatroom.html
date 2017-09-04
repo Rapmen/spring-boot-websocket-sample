@@ -95,7 +95,7 @@ limitations under the License.
 			if (ws != null) {
 				var message = document.getElementById('message').value;
 				log('Sent: ' + message);
-				ws.send(message);
+				ws.send("{\"userName\": \"XX\",\"content\": \"" + message + "\"}");
 			} else {
 				alert('WebSocket connection not established, please connect.');
 			}

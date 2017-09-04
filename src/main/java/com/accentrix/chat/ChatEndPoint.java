@@ -1,5 +1,6 @@
 package com.accentrix.chat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +30,14 @@ public class ChatEndPoint {
     }
 
     @OnMessage
-    public void onMessage(String message) {
+    public void onMessage(String message) throws IOException {
         logger.debug("Message: " + message);
         logger.debug("Count: " + webSocketSet.size());
         logger.debug("UUID: " + this.cr.getId());
-        broadcast(message);
+
+        ObjectMapper mapper = new ObjectMapper();
+        MessageVO messageVO = mapper.readValue(message, MessageVO.class);
+        broadcast(messageVO.getContent());
     }
 
     @OnError
