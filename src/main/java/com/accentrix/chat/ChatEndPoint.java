@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @ServerEndpoint("/chat")
@@ -13,23 +14,25 @@ public class ChatEndPoint {
 
     private static Logger logger = LoggerFactory.getLogger(ChatEndPoint.class);
 
-    private static CopyOnWriteArraySet<ChatEndPoint> webSocketSet = new CopyOnWriteArraySet<>();
-    private Session session;
+    private static CopyOnWriteArraySet<ChatRoom> webSocketSet = new CopyOnWriteArraySet<>();
+    private ChatRoom cr;
 
     @OnOpen
     public void onOpen(Session session) {
-        this.session = session;
-        webSocketSet.add(this);
+        this.cr = new ChatRoom(UUID.randomUUID().toString(), session);
+        webSocketSet.add(this.cr);
     }
 
     @OnClose
     public void onClose() {
-        webSocketSet.remove(this);
+        webSocketSet.remove(this.cr);
     }
 
     @OnMessage
     public void onMessage(String message) {
         logger.debug("Message: " + message);
+        logger.debug("Count: " + webSocketSet.size());
+        logger.debug("UUID: " + this.cr.getId());
         broadcast(message);
     }
 
@@ -38,10 +41,10 @@ public class ChatEndPoint {
         error.printStackTrace();
     }
 
-    public void broadcast(String message) {
+    private void broadcast(String message) {
         webSocketSet.parallelStream().forEach(item -> {
             try {
-                item.session.getBasicRemote().sendText(message);
+                item.getSession().getBasicRemote().sendText(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
