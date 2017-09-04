@@ -17,7 +17,7 @@ public class ChatEndPoint {
     private Session session;
 
     @OnOpen
-    public void onOpen(Session session, EndpointConfig config) {
+    public void onOpen(Session session) {
         this.session = session;
         webSocketSet.add(this);
     }
